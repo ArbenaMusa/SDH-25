@@ -1,0 +1,84 @@
+package Ushtrime;
+
+import java.util.Random;
+
+public class RSA_USHTRIME{
+    public static void main(String[] args) {
+        int p = 23, q = 5;
+        int n = p * q; 
+        int phi = (p - 1) * (q - 1);
+
+        int e = findE(phi);
+        int d = modInverse(e, phi);
+
+        int m = 12;
+        int c = encrypt(m, e, n);
+        int decrypted = decrypt(c, d, n);
+
+        System.out.println("Moduli (n): " + n);
+        System.out.println("Φ(n): " + phi);
+        System.out.println("Eksponenti publik (e): " + e);
+        System.out.println("Çelësi privat (d): " + d);
+        System.out.println("Mesazhi origjinal: " + m);
+        System.out.println("Mesazhi i enkriptuar: " + c);
+        System.out.println("Mesazhi i dekriptuar: " + decrypted);
+    }
+
+
+    public static int findE(int phi) {
+        int e = 3;
+        while (gcd(e, phi) != 1) {
+            e++;
+        }
+        return e;
+    }
+
+
+    public static int modInverse(int e, int phi) {
+        int[] result = extendedEuclid(e, phi);
+        int d = result[1];
+        if (d < 0) {
+            d += phi;
+        }
+        return d;
+    }
+
+
+    public static int[] extendedEuclid(int a, int b) {
+        if (b == 0) return new int[]{a, 1, 0};
+        int[] values = extendedEuclid(b, a % b);
+        int gcd = values[0];
+        int x = values[2];
+        int y = values[1] - (a / b) * values[2];
+        return new int[]{gcd, x, y};
+    }
+
+
+    public static int gcd(int a, int b) {
+        if (b == 0) return a;
+        return gcd(b, a % b);
+    }
+
+    // Enkriptimi: c = m^e mod n
+    public static int encrypt(int m, int e, int n) {
+        return modExp(m, e, n);
+    }
+
+    // Dekriptimi: m = c^d mod n
+    public static int decrypt(int c, int d, int n) {
+        return modExp(c, d, n);
+    }
+
+
+    public static int modExp(int base, int exp, int mod) {
+        int result = 1;
+        base = base % mod;
+        while (exp > 0) {
+            if ((exp & 1) == 1)
+                result = (result * base) % mod;
+            exp = exp >> 1;
+            base = (base * base) % mod;
+        }
+        return result;
+    }
+}
